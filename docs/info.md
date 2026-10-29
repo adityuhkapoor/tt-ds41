@@ -19,6 +19,10 @@ Nothing is rounded. Each FP4 weight becomes a small signed integer (x2) and each
 (combined scale 224 to 254), the accumulator equals the exact rational dot product. Above that range the shift
 saturates at 30, and below it the low bits are truncated.
 
+Each ACT write latches its operands, and the multiply-accumulate runs on the next clock. A closed block is registered
+and shifted into the accumulator on the clock after that. Neither stage limits throughput, because the pins deliver at
+most one byte every 10 clocks. The design closes timing at 25 MHz in every corner, with at least 7 ns of setup slack.
+
 The host writes one byte at a time. It puts the byte on `ui_in` and a register select on `uio[3:1]`, then pulses
 `uio[0]`. The strobe is synchronized and edge-detected, so the RP2040 on the demo board can bit-bang it.
 

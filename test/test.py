@@ -73,7 +73,7 @@ async def dot(dut, w, ws, a, as_):
 
 
 async def reset(dut):
-    cocotb.start_soon(Clock(dut.clk, 20, unit="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 40, unit="ns").start())  # 25 MHz, the hardened clock
     dut.ena.value = 1
     dut.ui_in.value = 0
     dut.uio_in.value = 0
