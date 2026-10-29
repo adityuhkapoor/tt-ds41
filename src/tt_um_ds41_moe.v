@@ -62,7 +62,7 @@ module tt_um_ds41_moe (
 
     wire signed [63:0] acc;
 
-    ds41_dot #(.LANES(1)) core (
+    ds41_dot #(.LANES(1), .PIPE(1)) core (
         .clk      (clk),
         .rst_n    (rst_n),
         .clear    (wr && sel == 3'd0 && ui_in[0]),

@@ -5,7 +5,7 @@ project:
   discord:      ""
   description:  "Block-scaled FP4 x FP8 dot product for DeepSeek-V4.1-Flash routed experts"
   language:     "Verilog"
-  clock_hz:     25000000
+  clock_hz:     50000000
 
   tiles: "2x2"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
 

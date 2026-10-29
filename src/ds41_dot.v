@@ -6,11 +6,14 @@
 // and added into acc. acc is fixed point with 40 fractional bits.
 //
 // w_scale / a_scale must be held stable on the beat that closes a block.
+// PIPE=1 registers each closed block and shifts it into acc on the next
+// cycle, splitting the MAC from the 64-bit shift-add; acc then lags by one.
 `default_nettype none
 
 module ds41_dot #(
     parameter LANES = 1,  // must divide 32
-    parameter W_FP8 = 0
+    parameter W_FP8 = 0,
+    parameter PIPE  = 0
 ) (
     input  wire                    clk,
     input  wire                    rst_n,
@@ -47,20 +50,33 @@ module ds41_dot #(
 
     wire signed [47:0] bnext = bsum + lsum;
     wire signed [9:0]  shamt = $signed({2'b0, w_scale}) + $signed({2'b0, a_scale}) - $signed(OFFSET);
+    wire               close = in_valid && cnt == STEPS - 1;
+
+    // Pipeline stage (PIPE=1 only): the closed block waiting to be shifted in.
+    reg signed [47:0] pblk;
+    reg signed [9:0]  pshamt;
+    reg               pvalid;
 
     always @(posedge clk) begin
         if (!rst_n || clear) begin
-            acc  <= 64'sd0;
-            bsum <= 32'sd0;
-            cnt  <= 6'd0;
-        end else if (in_valid) begin
-            if (cnt == STEPS - 1) begin
-                acc  <= acc + block_shift(bnext, shamt, SMAX);
-                bsum <= 48'sd0;
-                cnt  <= 6'd0;
-            end else begin
-                bsum <= bnext;
-                cnt  <= cnt + 6'd1;
+            acc    <= 64'sd0;
+            bsum   <= 32'sd0;
+            cnt    <= 6'd0;
+            pvalid <= 1'b0;
+        end else begin
+            if (PIPE) begin
+                pvalid <= close;
+                if (close) begin
+                    pblk   <= bnext;
+                    pshamt <= shamt;
+                end
+                if (pvalid) acc <= acc + block_shift(pblk, pshamt, SMAX);
+            end else if (close) begin
+                acc <= acc + block_shift(bnext, shamt, SMAX);
+            end
+            if (in_valid) begin
+                bsum <= close ? 48'sd0 : bnext;
+                cnt  <= close ? 6'd0 : cnt + 6'd1;
             end
         end
     end
