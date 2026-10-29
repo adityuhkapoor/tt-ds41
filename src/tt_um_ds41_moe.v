@@ -40,6 +40,12 @@ module tt_um_ds41_moe (
     reg       nib_hi;
     reg [2:0] ptr;
 
+    // An ACT write latches its operands here and the MAC runs on the next
+    // clock, so no pin-to-register path goes through the multiplier.
+    reg [3:0] mac_w;
+    reg [7:0] mac_a;
+    reg       mac;
+
     always @(posedge clk) begin
         if (!rst_n) begin
             w_scale <= 8'd0;
@@ -47,16 +53,24 @@ module tt_um_ds41_moe (
             wbyte   <= 8'd0;
             nib_hi  <= 1'b0;
             ptr     <= 3'd0;
-        end else if (wr) begin
-            case (sel)
-                3'd0: if (ui_in[1]) ptr <= 3'd0;
-                3'd1: w_scale <= ui_in;
-                3'd2: a_scale <= ui_in;
-                3'd3: begin wbyte <= ui_in; nib_hi <= 1'b0; end
-                3'd4: nib_hi <= ~nib_hi;
-                3'd5: ptr <= ptr + 3'd1;
-                default: ;
-            endcase
+            mac     <= 1'b0;
+        end else begin
+            mac <= wr && sel == 3'd4;
+            if (wr) begin
+                case (sel)
+                    3'd0: if (ui_in[1]) ptr <= 3'd0;
+                    3'd1: w_scale <= ui_in;
+                    3'd2: a_scale <= ui_in;
+                    3'd3: begin wbyte <= ui_in; nib_hi <= 1'b0; end
+                    3'd4: begin
+                        mac_w  <= nib_hi ? wbyte[7:4] : wbyte[3:0];
+                        mac_a  <= ui_in;
+                        nib_hi <= ~nib_hi;
+                    end
+                    3'd5: ptr <= ptr + 3'd1;
+                    default: ;
+                endcase
+            end
         end
     end
 
@@ -66,9 +80,9 @@ module tt_um_ds41_moe (
         .clk      (clk),
         .rst_n    (rst_n),
         .clear    (wr && sel == 3'd0 && ui_in[0]),
-        .in_valid (wr && sel == 3'd4),
-        .w        (nib_hi ? wbyte[7:4] : wbyte[3:0]),
-        .a        (ui_in),
+        .in_valid (mac),
+        .w        (mac_w),
+        .a        (mac_a),
         .w_scale  (w_scale),
         .a_scale  (a_scale),
         .acc      (acc)
