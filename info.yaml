@@ -1,7 +1,7 @@
 # Tiny Tapeout project information
 project:
   title:        "DS41 MoE expert engine"
-  author:       "Aditya Kapoor"
+  author:       "Aditya K"
   discord:      ""
   description:  "Block-scaled FP4 x FP8 dot product for DeepSeek-V4.1-Flash routed experts"
   language:     "Verilog"

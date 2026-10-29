@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: © 2026 Aditya Kapoor
+# SPDX-FileCopyrightText: © 2026 Aditya K
 # SPDX-License-Identifier: Apache-2.0
 """Drives tt_um_ds41_moe through its byte protocol and checks every accumulator byte against an
 exact fixed-point model. The same test runs on the RTL and on the gate-level netlist."""
