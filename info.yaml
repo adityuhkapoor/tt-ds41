@@ -1,0 +1,46 @@
+# Tiny Tapeout project information
+project:
+  title:        "DS41 MoE expert engine"
+  author:       "Aditya Kapoor"
+  discord:      ""
+  description:  "Block-scaled FP4 x FP8 dot product for DeepSeek-V4.1-Flash routed experts"
+  language:     "Verilog"
+  clock_hz:     50000000
+
+  tiles: "1x2"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
+
+  top_module:  "tt_um_ds41_moe"
+
+  source_files:
+    - "ds41_dot.v"
+    - "tt_um_ds41_moe.v"
+
+pinout:
+  ui[0]: "data[0]"
+  ui[1]: "data[1]"
+  ui[2]: "data[2]"
+  ui[3]: "data[3]"
+  ui[4]: "data[4]"
+  ui[5]: "data[5]"
+  ui[6]: "data[6]"
+  ui[7]: "data[7]"
+
+  uo[0]: "acc_byte[0]"
+  uo[1]: "acc_byte[1]"
+  uo[2]: "acc_byte[2]"
+  uo[3]: "acc_byte[3]"
+  uo[4]: "acc_byte[4]"
+  uo[5]: "acc_byte[5]"
+  uo[6]: "acc_byte[6]"
+  uo[7]: "acc_byte[7]"
+
+  uio[0]: "strobe (in)"
+  uio[1]: "sel[0] (in)"
+  uio[2]: "sel[1] (in)"
+  uio[3]: "sel[2] (in)"
+  uio[4]: ""
+  uio[5]: ""
+  uio[6]: ""
+  uio[7]: ""
+
+yaml_version: 6
